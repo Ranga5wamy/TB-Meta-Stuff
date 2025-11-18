@@ -1,0 +1,56 @@
+### OONA This is the meta preperation stuff. This is all the stuff you may need to install
+
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("MungeSumstats", force = TRUE)
+
+BiocManager::install("SNPlocs.Hsapiens.dbSNP155.GRCh37")
+
+BiocManager::install("SNPlocs.Hsapiens.dbSNP155.GRCh38")
+
+devtools::install_github("ararder/tidyGWAS")
+remotes::install_github("ararder/tidyGWAS")
+
+
+
+### Now that you have all the files. Here is the code. First Step is to run the munge code to format it
+
+library(MungeSumstats)
+library(data.table)
+
+Hmm <- format_sumstats("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Raw_Files_Sumstats/FILE.tsv", ref_genome = "GRCh38", dbSNP = 155, bi_allelic_filter = FALSE, flip_frq_as_biallelic = TRUE)
+
+out_path <- "/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Munge_Format_Testing/"
+file.copy(Hmm, out_path) ## THIS ALLOWS YOU TO SAVE THE FILES
+
+###NOW THAT YOU ARE HERE. STOP, RENAME THE FILE AND THEN GUNZIP IT
+
+Munge_Stats <- read.table("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Munge_Format_Testing/FILENAMECHANGEITPLEASE  header = TRUE)
+
+Next_Step <- tidyGWAS(Munge_Stats, "/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Munge_Format_Testing/dbSNP155/", CaseN = N, ControlN = N)
+write_tsv(Next_Step, "/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Munge_Format_Testing/FILE_Post_Munge_And_Tidy.tsv")
+
+Next_Step_Marked <- Next_Step %>%
+  mutate(FRQ_bin = ggplot2::cut_number(FRQ, 10, dig.lab = 5)) %>%
+  arrange(P) %>%
+  group_by(FRQ_bin) %>%
+  mutate(
+    Expected = -log10(ppoints(n())),
+    Observed = -log10(P)
+  ) %>%
+  ungroup()
+
+
+QQs <- ggplot(Next_Step_Marked, aes(x = Expected, y = Observed)) +
+  geom_point(size = 0.7, alpha = 0.6) +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  facet_wrap(~ FRQ_bin, scales = "free") +
+  labs(
+    title = "QQ Plots by FRQ Bin (cut_number)",
+    x = "Expected -log10(P)",
+    y = "Observed -log10(P)"
+  )
+
+
+print(QQs)
