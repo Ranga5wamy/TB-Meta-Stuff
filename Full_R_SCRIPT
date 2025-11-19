@@ -16,7 +16,7 @@ dbsnp_dir <- "/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Munge_Format
 cohorts <- tibble::tribble(
   ~cohort,        ~in_path,                                                             ~ref_genome, ~CaseN, ~ControlN,
   # UK Biobank (using your formatted file)
-  "UKBB",         file.path(base_dir, "UKBB",   "UKBB_Formatted.tsv"),                 "GRCh37",     3011,   394065,
+  "UKBB",         file.path(base_dir, "UKBB",   "UKBB_Formatted_With_P.tsv"),                 "GRCh37",     3011,   394065,
   # China Kaduri
   "ChinaKaduri",  file.path(base_dir, "China_Kaduri", "China_A16.tsv"),                "GRCh37",      488,    75529,
   # Estonian Biobank
