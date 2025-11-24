@@ -39,7 +39,7 @@ cohorts <- tibble::tribble(
   # Biobank Japan
   "BBJ",          file.path(base_dir, "BBJ",           "Japan_One_P.txt"),               "GRCh37",     7800,   170871,
   # Mass Gen Brigham
-  "MGB",          file.path(base_dir, "MGB",           "MGB.tsv"),                     "GRCh38",      447,    41361,
+  "MGB",          file.path(base_dir, "MGB",           "MGB_with_p_from_logp.tsv"),                     "GRCh38",      447,    41361,
   # Soumya
   "Soumya",       file.path(base_dir, "Soumya",        "Soumya_clean.tsv"),      "GRCh37",     2160,     1820,
   # Taiwan Biobank
