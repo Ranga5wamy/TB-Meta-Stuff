@@ -22,7 +22,7 @@ cohorts <- tibble::tribble(
   # Estonian Biobank
   "EBB",          file.path(base_dir, "EBB",    "EBB_Raw.txt"),                        "GRCh38",     3181,   204942,
   # Finngen
-  "Finngen",      file.path(base_dir, "Finngen","finngen_wide.tsv"),                   "GRCh38",     3063,   500348,
+  "Finngen",      file.path(base_dir, "Fingenn","finngen_wide.tsv"),                   "GRCh38",     3063,   500348,
   # Genes & Health
   "GNH",          file.path(base_dir, "GNH",    "GNH_Broad_Raw_regenie.tsv"),          "GRCh38",     1936,    44481,
   # Multi Ethnic Meta – Africa
