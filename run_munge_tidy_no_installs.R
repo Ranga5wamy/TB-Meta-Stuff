@@ -25,17 +25,17 @@ cohorts <- tibble::tribble(
   # China Kaduri
   "ChinaKaduri",  file.path(base_dir, "CKB",           "China_A16_fixed.tsv"),               "GRCh37",      488,    75529,
   # Estonian Biobank
-  "EBB",          file.path(base_dir, "EBB",           "EBB_Raw.txt"),                 "GRCh38",     3181,   204942,
+  "EBB",          file.path(base_dir, "EBB",           "EBB_NoCaseCols.txt"),                 "GRCh38",     3181,   204942,
   # Finngen
-  "Finngen",      file.path(base_dir, "Fingenn",       "finngen_wide.tsv"),            "GRCh38",     3063,   500348,
+  "Finngen",      file.path(base_dir, "Fingenn",       "finngen_wide_With_N.txt"),            "GRCh38",     3063,   500348,
   # Genes & Health
-  "GNH",          file.path(base_dir, "GNH",           "GNH_No_Id.tsv"),   "GRCh38",     1936,    44481,
+  "GNH",          file.path(base_dir, "GNH",           "GNH_No_Id.tsv"),               "GRCh38",     1936,    44481,
   # Multi Ethnic Meta – Africa
-  "GWAMA_Africa", file.path(base_dir, "GWAMA_Africa",  "GWAMA_Africa_NoEffects.txt"),      "GRCh37",     3104,     4316,
+  "GWAMA_Africa", file.path(base_dir, "GWAMA_Africa",  "GWAMA_Africa_No_Effects.txt"),      "GRCh37",     3104,     4316,
   # Multi Ethnic Meta – Asia
-  "GWAMA_Asia",   file.path(base_dir, "GWAMA_Asia",    "GWAMA_Asia_NoEffects.txt"),        "GRCh37",     3929,     6763,
+  "GWAMA_Asia",   file.path(base_dir, "GWAMA_Asia",    "GWAMA_Asia_No_Effects.txt"),        "GRCh37",     3929,     6763,
   # Multi Ethnic Meta – Europe
-  "GWAMA_Europe", file.path(base_dir, "GWAMA_Europe",  "GWAMA_Europe_NoEffects.txt"),      "GRCh37",     6739,    13402,
+  "GWAMA_Europe", file.path(base_dir, "GWAMA_Europe",  "GWAMA_Europe_No_Effects.txt"),      "GRCh37",     6739,    13402,
   # Biobank Japan
   "BBJ",          file.path(base_dir, "BBJ",           "Japan_One_P.txt"),               "GRCh37",     7800,   170871,
   # Mass Gen Brigham
@@ -129,7 +129,9 @@ ggsave(
     filename = out_qq_pdf,
     plot     = QQs,
     width    = 8,
-    height   = 6
+    height   = 6,
+    units = "in",
+    dpi = 300
   )
 
   message("Finished ", cohort,
