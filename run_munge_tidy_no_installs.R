@@ -101,10 +101,10 @@ process_cohort <- function(cohort, in_path, ref_genome, CaseN, ControlN, dbsnp_d
   )
 
   ## 4. QQ plot by FRQ decile
-  if (!"FRQ" %in% names(Next_Step)) {
-    warning("No FRQ column in tidyGWAS output for ", cohort, "; skipping QQ plot.")
-    return(invisible(Next_Step))
-  }
+#  if (!"FRQ" %in% names(Next_Step)) {
+#    warning("No FRQ column in tidyGWAS output for ", cohort, "; skipping QQ plot.")
+#    return(invisible(Next_Step))
+#  }
 
   Next_Step_Marked <- Next_Step %>%
     mutate(FRQ_bin = ggplot2::cut_number(FRQ, 10, dig.lab = 5)) %>%
