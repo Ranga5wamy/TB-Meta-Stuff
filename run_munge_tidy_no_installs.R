@@ -23,7 +23,7 @@ cohorts <- tibble::tribble(
   # UK Biobank
   "UKBB",         file.path(base_dir, "UKBB",          "UK_Names_Fixed.tsv"),   "GRCh37",     3011,   394065,
   # China Kaduri
-  "ChinaKaduri",  file.path(base_dir, "CKB",  "China_A16.tsv"),               "GRCh37",      488,    75529,
+  "ChinaKaduri",  file.path(base_dir, "CKB",           "China_A16_fixed.tsv"),               "GRCh37",      488,    75529,
   # Estonian Biobank
   "EBB",          file.path(base_dir, "EBB",           "EBB_Raw.txt"),                 "GRCh38",     3181,   204942,
   # Finngen
