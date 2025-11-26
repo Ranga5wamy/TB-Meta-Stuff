@@ -62,7 +62,7 @@ process_cohort <- function(cohort, in_path, ref_genome, CaseN, ControlN, dbsnp_d
 
   out_gz      <- file.path(out_dir, paste0(cohort, "_Munge.tsv.gz"))
   out_tidy    <- file.path(out_dir, paste0(cohort, "_Post_Munge_And_Tidy.tsv"))
-  out_qq_pdf  <- file.path(out_dir, paste0(cohort, "_QQ_FRQbin.png"))
+  out_qq_pdf  <- file.path(out_dir, paste0(cohort, "_QQ_MAF_bin.png"))
 
   ## 1. MungeSumstats
   Hmm <- format_sumstats(
@@ -102,22 +102,24 @@ Next_Step <- Next_Step %>%
     abs(Z) < 40          # |Z| > 40 is essentially impossible in real GWAS
   )
 
+Next_Step <- Next_Step %>% mutate(MAF = pmin(EAF, 1-EAF))
+
   data.table::fwrite(
     Next_Step,
     file = out_tidy,
     sep  = "\t"
   )
 
-  ## 4. QQ plot by FRQ decile
-#  if (!"FRQ" %in% names(Next_Step)) {
-#    warning("No FRQ column in tidyGWAS output for ", cohort, "; skipping QQ plot.")
+  ## 4. QQ plot by MAF decile
+#  if (!"MAF" %in% names(Next_Step)) {
+#    warning("No MAF column in tidyGWAS output for ", cohort, "; skipping QQ plot.")
 #    return(invisible(Next_Step))
 #  }
 
   Next_Step_Marked <- Next_Step %>%
-    mutate(FRQ_bin = ggplot2::cut_number(FRQ, 10, dig.lab = 5)) %>%
+    mutate(MAF_bin = ggplot2::cut_number(MAF, 10, dig.lab = 5)) %>%
     arrange(P) %>%
-    group_by(FRQ_bin) %>%
+    group_by(MAF_bin) %>%
     mutate(
       Expected = -log10(ppoints(n())),
       Observed = -log10(P)
@@ -127,9 +129,9 @@ Next_Step <- Next_Step %>%
   QQs <- ggplot(Next_Step_Marked, aes(x = Expected, y = Observed)) +
     geom_point(size = 0.7, alpha = 0.6) +
     geom_abline(intercept = 0, slope = 1, color = "red") +
-    facet_wrap(~ FRQ_bin, scales = "free") +
+    facet_wrap(~ MAF_bin, scales = "free") +
     labs(
-      title = paste0(cohort, ": QQ Plots by FRQ Bin"),
+      title = paste0(cohort, ": QQ Plots by MAF Bin"),
       x = "Expected -log10(P)",
       y = "Observed -log10(P)"
     )
