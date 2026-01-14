@@ -1,0 +1,111 @@
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(readr)
+#if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+#BiocManager::install("rtracklayer")
+
+library(rtracklayer)
+library(GenomicRanges)
+```
+
+```{r}
+file.exists("/home/rbharadw/Chain_File/hg38ToHg19.over.chain.gz")
+```
+
+```{r}
+Chain_File <- import.chain("/home/rbharadw/Chain_File/hg19ToHg38.over.chain")
+```
+
+
+
+```{r}
+Full_Meta <- data.table::fread("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/12_22_Munge_Tests/Metal_Files/Metals/Pass_4/ALL/ALL_META_For_LocusZoom.tsv.gz", header = TRUE, sep = "\t")
+Eur_Meta <- fread("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/12_22_Munge_Tests/Metal_Files/Metals/Pass_4/EUR/EUR_Meta_For_LocusZoom.tsv.gz", header = TRUE, sep = "\t")
+```
+
+
+
+
+```{r}
+GWAMA_Eur_Raw <- fread("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/Raw_Files_Sumstats/GWAMA.Europe.Final.gcFEchbp.out", header = TRUE)
+head(GWAMA_Eur_Raw)
+```
+
+
+```{r}
+SNPS_In_One <- Full_Meta %>%
+  dplyr::filter(stringr::str_count(Direction, "[+-]") == 1 & `P-value`< 5e-08)
+nrow(SNPS_In_One)
+Problem_Frames <- SNPS_In_One %>% group_by(Direction) %>% dplyr::summarise("Count" = n())
+(Problem_Frames %>% arrange(desc(Count)))
+```
+```{r}
+(SNPS_In_One)
+```
+
+
+
+```{r}
+Things <- str_split_fixed(SNPS_In_One$MarkerName, ":", 4)
+SNPS_In_One2 <- SNPS_In_One %>% mutate(chromosome = Things[,1], base_pair_location = Things[,2])
+
+SNPS_Selected <- SNPS_In_One2 %>% dplyr::select(c(chromosome, base_pair_location))
+head(SNPS_Selected)
+dt <- SNPS_Selected
+
+dt[, chromosome := as.character(chromosome)]
+dt[, base_pair_location := as.integer(base_pair_location)]
+gr38 <- GRanges(
+  seqnames = paste0("chr", dt$chromosome),
+  ranges   = IRanges(start = dt$base_pair_location,
+                     end   = dt$base_pair_location)
+)
+lo <- liftOver(gr38, Chain_File)
+keep <- lengths(lo) == 1
+gr37 <- unlist(lo[keep])
+dt_37 <- dt[keep]
+
+dt_37[, chromosome_19 := sub("^chr", "", as.character(seqnames(gr37)))]
+dt_37[, base_pair_location_19 := start(gr37)]
+
+
+```
+```{r}
+SNPS_In_One2$chromosome <- as.integer(SNPS_In_One2$chromosome)
+SNPS_In_One2$base_pair_location <- as.integer(SNPS_In_One2$base_pair_location)
+
+List <- as.list(SNPS_In_One$MarkerName)
+Munge_GWAMA <- fread("/fh/fast/sinnott-armstrong_n/proj/TB_Meta_Mega_Folder/12_22_Munge_Tests/Metal_Files/Final_Files/GWAMA_Europe_Final.tsv", header = TRUE, sep = "\t")
+GWAMA_Filtered <- inner_join(Munge_GWAMA, SNPS_In_One2, by = c("CHR" = "chromosome", "BP" = "base_pair_location"))
+head(GWAMA_Filtered)
+```
+```{r}
+print(GWAMA_Filtered$SNP)
+```
+
+
+```{r}
+
+join_37 <- dt_37 %>% dplyr::select(c(chromosome_19, base_pair_location_19))
+join_37$base_pair_location_19 <- as.integer((join_37$base_pair_location_19))
+join_37$chromosome_19 <- as.integer(join_37$chromosome_19)
+GWAMA_Eur_Problem_Rows <- join_37 %>%
+  dplyr::inner_join(
+    GWAMA_Eur_Raw,
+    by = c(
+      "chromosome_19" = "chromosome",
+      "base_pair_location_19" = "base_pair_location"
+    )
+  )
+
+Problem_Cohorts_Identified <- GWAMA_Eur_Problem_Rows %>% group_by(effects) %>% summarise("Count" = n())
+head(GWAMA_Eur_Problem_Rows)
+Problem_Cohorts_Identified
+```
+```{r}
+nrow(join_37)
+```
